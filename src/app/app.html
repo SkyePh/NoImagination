@@ -1,0 +1,54 @@
+<div class="shell">
+  <aside class="color-bar">
+    <h1>Colors</h1>
+    <p class="hint">Paste a Color Hunt link, or enter four hex colors. The portal updates as you type.</p>
+    <label class="slot">
+      <span class="slot-name">Color Hunt link</span>
+      <input
+        class="hex link"
+        type="text"
+        [value]="paletteLink()"
+        (input)="onPaletteInput($event)"
+        (paste)="onPalettePaste()"
+        (blur)="onPaletteBlur()"
+        placeholder="colorhunt.co/palette/..."
+        spellcheck="false"
+        [attr.aria-invalid]="paletteError()"
+        aria-label="Color Hunt link"
+      />
+      @if (paletteError()) {
+        <span class="error">Paste a Color Hunt palette link.</span>
+      }
+    </label>
+    @for (slot of theme.slots(); track slot.label) {
+      <label class="slot">
+        <span class="slot-name">{{ slot.label }}</span>
+        <span class="slot-role">{{ slot.role }}</span>
+        <span class="slot-fields">
+          <input
+            class="picker"
+            type="color"
+            [value]="slot.picker"
+            (input)="onColor(slot.index, $event)"
+            [attr.aria-label]="slot.label + ' picker'"
+          />
+          <input
+            class="hex"
+            type="text"
+            [value]="slot.raw"
+            (input)="onColor(slot.index, $event)"
+            placeholder="#aabbcc"
+            spellcheck="false"
+            [attr.aria-invalid]="slot.invalid"
+            [attr.aria-label]="slot.label + ' hex'"
+          />
+        </span>
+        @if (slot.invalid) {
+          <span class="error">Enter a hex color, like #aabbcc.</span>
+        }
+      </label>
+    }
+    <button type="button" class="switch" (click)="theme.reversePalette()">Switch</button>
+  </aside>
+  <app-portal />
+</div>

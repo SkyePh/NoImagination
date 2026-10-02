@@ -1,0 +1,201 @@
+<div class="portal" [ngStyle]="theme.cssVars()">
+  <header class="topbar">
+    <p-button
+      icon="pi pi-bars"
+      [text]="true"
+      ariaLabel="Collapse sidebar"
+      (onClick)="toggleSidebar()"
+    />
+    <strong class="topbar-title">NoImagination</strong>
+    <span class="topbar-spacer"></span>
+    <p-select
+      [options]="years"
+      [ngModel]="year()"
+      (ngModelChange)="year.set($event)"
+      placeholder="Year"
+      appendTo="self"
+      ariaLabel="Year"
+    />
+    <p-button icon="pi pi-bell" [text]="true" [rounded]="true" ariaLabel="Notifications" />
+    <p-button icon="pi pi-user" [text]="true" [rounded]="true" ariaLabel="Account" />
+  </header>
+
+  <div class="portal-body">
+    <aside class="sidebar" [class.collapsed]="collapsed()">
+      <div class="brand">
+        <span class="mark">P</span>
+        @if (!collapsed()) {
+          <span>Portal</span>
+        }
+      </div>
+
+      @if (!collapsed()) {
+        <label class="search">
+          <i class="pi pi-search" aria-hidden="true"></i>
+          <input
+            pInputText
+            type="search"
+            placeholder="Search menu..."
+            [value]="query()"
+            (input)="onQuery($event)"
+          />
+        </label>
+      }
+
+      <nav>
+        @for (group of groups(); track group.label) {
+          <p class="group-label">{{ collapsed() ? '' : group.label }}</p>
+          @for (item of group.items; track item.id) {
+            <button
+              type="button"
+              class="nav-item"
+              [class.active]="section() === item.id"
+              (click)="selectSection(item.id)"
+            >
+              <i [class]="item.icon" aria-hidden="true"></i>
+              @if (!collapsed()) {
+                <span>{{ item.label }}</span>
+              }
+            </button>
+          }
+        }
+        @if (groups().length === 0) {
+          <p class="empty-nav">No matches</p>
+        }
+      </nav>
+    </aside>
+
+    <main class="canvas">
+      <div class="page-head">
+        <div>
+          <h2>{{ heading() }}</h2>
+          <p>Placeholder content for this section.</p>
+        </div>
+        <p-select
+          [options]="years"
+          [ngModel]="year()"
+          (ngModelChange)="year.set($event)"
+          appendTo="self"
+          ariaLabel="Academic year"
+        />
+      </div>
+
+      <p-message severity="secondary" icon="pi pi-info-circle">
+        Colors update live. The page background stays neutral.
+      </p-message>
+
+      @switch (section()) {
+        @case ('home') {
+          <div class="grid">
+            <ng-container *ngTemplateOutlet="formCard" />
+            <ng-container *ngTemplateOutlet="barCard" />
+            <div class="span-2">
+              <ng-container *ngTemplateOutlet="tableCard" />
+            </div>
+          </div>
+        }
+        @case ('dashboards') {
+          <div class="grid">
+            <ng-container *ngTemplateOutlet="barCard" />
+            <p-card header="Shortcuts">
+              <div class="actions">
+                <p-button label="Refresh" icon="pi pi-refresh" />
+                <p-button label="Export" styleClass="tone-3" />
+                <a class="tone-link" href="#" (click)="$event.preventDefault()">View details</a>
+              </div>
+            </p-card>
+          </div>
+        }
+        @case ('tasks') {
+          <div class="grid single">
+            <ng-container *ngTemplateOutlet="formCard" />
+          </div>
+        }
+        @case ('reports') {
+          <div class="grid single">
+            <div class="span-2">
+              <ng-container *ngTemplateOutlet="tableCard" />
+            </div>
+          </div>
+        }
+      }
+    </main>
+  </div>
+</div>
+
+<ng-template #formCard>
+  <p-card header="Record">
+    <div class="fields">
+      <label>
+        Name
+        <input pInputText type="text" [ngModel]="name()" (ngModelChange)="name.set($event)" placeholder="Name" />
+      </label>
+      <label>
+        Email
+        <input
+          pInputText
+          type="email"
+          [ngModel]="email()"
+          (ngModelChange)="email.set($event)"
+          placeholder="name@example.com"
+        />
+      </label>
+      <label>
+        Category
+        <p-select
+          [options]="categories"
+          [ngModel]="category()"
+          (ngModelChange)="category.set($event)"
+          appendTo="self"
+          ariaLabel="Category"
+        />
+      </label>
+      <label class="check">
+        <p-checkbox [binary]="true" [ngModel]="agreed()" (ngModelChange)="agreed.set($event)" inputId="copy" />
+        <span>Send a copy</span>
+      </label>
+    </div>
+    <div class="actions">
+      <p-button label="Save" icon="pi pi-check" />
+      <p-button label="Cancel" styleClass="tone-3" />
+    </div>
+  </p-card>
+</ng-template>
+
+<ng-template #barCard>
+  <p-card header="Distribution">
+    <ul class="bars">
+      @for (bar of bars; track bar.label + bar.width) {
+        <li>
+          <span>{{ bar.label }}</span>
+          <span class="track">
+            <span class="fill" [class.fill-c2]="bar.tone === 'c2'" [class.fill-c3]="bar.tone === 'c3'" [style.width]="bar.width"></span>
+          </span>
+        </li>
+      }
+    </ul>
+  </p-card>
+</ng-template>
+
+<ng-template #tableCard>
+  <p-card header="Records">
+    <p-table [value]="rows">
+      <ng-template #header>
+        <tr>
+          <th>Name</th>
+          <th>Owner</th>
+          <th>Status</th>
+          <th></th>
+        </tr>
+      </ng-template>
+      <ng-template #body let-row>
+        <tr>
+          <td>{{ row.name }}</td>
+          <td>{{ row.owner }}</td>
+          <td><p-tag [value]="row.status" /></td>
+          <td><p-button label="Open" size="small" /></td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-card>
+</ng-template>
